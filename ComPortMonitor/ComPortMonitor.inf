@@ -1,0 +1,91 @@
+;
+; ComPortMonitor.inf
+;
+
+[Version]
+Signature="$WINDOWS NT$"
+Class=System
+ClassGuid={4d36e97d-e325-11ce-bfc1-08002be10318}
+Provider=%ManufacturerName%
+CatalogFile=ComPortMonitor.cat
+DriverVer= ; TODO: set DriverVer in stampinf property pages
+
+[DestinationDirs]
+DefaultDestDir = 12
+
+; ================= Class section =====================
+
+[SourceDisksNames]
+1 = %DiskName%,,,""
+
+[SourceDisksFiles]
+ComPortMonitor.sys  = 1,,
+
+;*****************************************
+; Install Section
+;*****************************************
+
+[Manufacturer]
+%ManufacturerName%=Standard,NT$ARCH$
+
+[Standard.NT$ARCH$]
+%ComPortMonitor.DeviceDesc%=ComPortMonitor_Device, Root\ComPortMonitor
+
+[ComPortMonitor_Device.NT]
+CopyFiles=Drivers_Dir
+AddReg=ClassFilter_AddReg.NT
+
+[ClassFilter_AddReg.NT]
+HKLM, System\CurrentControlSet\Control\Class\{4d36e978-e325-11ce-bfc1-08002be10318}, UpperFilters, 0x00010008, ComPortMonitor
+HKLM, System\CurrentControlSet\Control\Class\{4D36E96D-E325-11CE-BFC1-08002BE10318}, UpperFilters, 0x00010008, ComPortMonitor
+HKLM, System\CurrentControlSet\Control\Class\{DF799E12-3C56-421B-B298-B6D3642BC878}, UpperFilters, 0x00010008, ComPortMonitor
+HKLM, System\CurrentControlSet\Control\Class\{CA21561A-B1C4-4732-A18F-36ABBA9CB8B0}, UpperFilters, 0x00010008, ComPortMonitor
+HKLM, System\CurrentControlSet\Control\Class\{9341CD95-4371-4A37-A5AF-FDB0A9D19631}, UpperFilters, 0x00010008, ComPortMonitor
+HKLM, System\CurrentControlSet\Control\Class\{14C9CD15-EC33-49C7-8C7B-0FA42FD96F8A}, UpperFilters, 0x00010008, ComPortMonitor
+
+[Drivers_Dir]
+ComPortMonitor.sys
+
+;-------------- Service installation
+[ComPortMonitor_Device.NT.Services]
+AddService = ComPortMonitor,%SPSVCINST_ASSOCSERVICE%, ComPortMonitor_Service_Inst
+
+; -------------- ComPortMonitor driver install sections
+[ComPortMonitor_Service_Inst]
+DisplayName    = %ComPortMonitor.SVCDESC%
+ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
+StartType      = 3               ; SERVICE_DEMAND_START
+ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %12%\ComPortMonitor.sys
+
+;
+;--- ComPortMonitor_Device Coinstaller installation ------
+;
+
+[DestinationDirs]
+ComPortMonitor_Device_CoInstaller_CopyFiles = 11
+
+[ComPortMonitor_Device.NT.CoInstallers]
+AddReg=ComPortMonitor_Device_CoInstaller_AddReg
+CopyFiles=ComPortMonitor_Device_CoInstaller_CopyFiles
+
+[ComPortMonitor_Device_CoInstaller_AddReg]
+HKR,,CoInstallers32,0x00010000, "WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll,WdfCoInstaller"
+
+[ComPortMonitor_Device_CoInstaller_CopyFiles]
+WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll
+
+[SourceDisksFiles]
+WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll=1 ; make sure the number matches with SourceDisksNames
+
+[ComPortMonitor_Device.NT.Wdf]
+KmdfService =  ComPortMonitor, ComPortMonitor_wdfsect
+[ComPortMonitor_wdfsect]
+KmdfLibraryVersion = $KMDFVERSION$
+
+[Strings]
+SPSVCINST_ASSOCSERVICE= 0x00000002
+ManufacturerName="Mironov Kirill Pavlovich
+DiskName = "ComPortMonitor Installation Disk"
+ComPortMonitor.DeviceDesc = "ComPortMonitor Device"
+ComPortMonitor.SVCDESC = "ComPortMonitor Service"
